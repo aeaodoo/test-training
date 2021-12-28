@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="utm_source_call" model="utm.source">
+            <field name="name">Llamada</field>
+        </record>
+        <record id="utm_source_mkt" model="utm.source">
+            <field name="name">MKT</field>
+        </record>
+        <record id="utm_source_webaesa" model="utm.source">
+            <field name="name">Web AESA</field>
+        </record>
+        <record id="utm_source_telemarketing" model="utm.source">
+            <field name="name">Telemarketing</field>
+        </record>
+        <record id="utm_source_eventoaspel" model="utm.source">
+            <field name="name">Evento aspel</field>
+        </record>
+        <record id="utm_source_canalizacion" model="utm.source">
+            <field name="name">Canalización Aspel</field>
+        </record>
+        <record id="utm_source_mailing" model="utm.source">
+            <field name="name">Mailing</field>
+        </record>
+        <record id="utm_source_ml" model="utm.source">
+            <field name="name">Mercado Libre</field>
+        </record>
+        <record id="utm_source_webaspel" model="utm.source">
+            <field name="name">Web Aspel</field>
+        </record>
+        <record id="utm_source_recomendacion" model="utm.source">
+            <field name="name">Recomendación</field>
+        </record>
+        <record id="utm_source_otros" model="utm.source">
+            <field name="name">Otros</field>
+        </record>
+        <record id="utm_source_google" model="utm.source">
+            <field name="name">Google</field>
+        </record>
+
+    </data>
+
+
+</odoo>

@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="action_renewal_list" model="ir.actions.act_window">
+            <field name="name">Renovaciones</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.renewal</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <record id="action_renewal_to_expire" model="ir.actions.act_window">
+            <field name="name">Renovaciones por vencer</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.renewal</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('to_expire','=',True)]</field>
+        </record>
+
+        <record id="action_renewals_clients" model="ir.actions.act_window">
+            <field name="name">Clientes Renovados</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.partner</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('has_renewal', '=', True)]</field>
+        </record>
+
+        <menuitem name="Renovaciones" id="menu_root_renewals" sequence="0" groups="andros-aesa.renewal_group_user"
+                  web_icon="andros-aesa,static/description/app.png"/>
+
+        <menuitem id="menu_renewals" name="Renovaciones" action="action_renewal_list" parent="menu_root_renewals"
+                  sequence="1"/>
+
+        <menuitem id="menu_renewals_all" name="Renovaciones" action="action_renewal_list" parent="menu_renewals"
+                  sequence="1"/>
+
+        <menuitem id="menu_renewals_to_expire" name="Renovaciones por vencer" action="action_renewal_to_expire"
+                  parent="menu_renewals" sequence="2"/>
+
+        <menuitem id="menu_renewals_clients_main" name="Clientes" action="base.action_partner_form" parent="menu_root_renewals"
+                  sequence="2"/>
+
+        <menuitem id="menu_renewals_clients" name="Clientes" action="base.action_partner_form"
+                  parent="menu_renewals_clients_main" sequence="1"/>
+
+        <menuitem id="menu_renewals_clients_renewals" name="Clientes Renovados" action="action_renewals_clients"
+                  parent="menu_renewals_clients_main" sequence="2"/>
+
+        <record id="res_renewal_tree_view" model="ir.ui.view">
+            <field name="name">res.renewal.tree.view</field>
+            <field name="model">res.renewal</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="Renovaciones" decoration-warning="to_expire==True" decoration-info="state=='draft'"
+                      decoration-danger="state=='expired'" decoration-muted="state=='cancel'">
+					<field name="name"/>
+                    <field name="partner_id"/>
+                    <field name="partner_sequence"/>
+                    <field name="aspel_system_id"/>
+                    <field name="new_date"/>
+                    <field name="state"/>
+                    <field name="to_expire" invisible="1"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="res_renewal_view_search" model="ir.ui.view">
+            <field name="name">res.renewal.search</field>
+            <field name="model">res.renewal</field>
+            <field name="type">search</field>
+            <field name="arch" type="xml">
+                <search string="Search Renovaciones">
+					<separator/>
+					<filter name="new" string="Nuevas" domain="[('state','=','draft')]"/>
+					<filter name="to_expire" string="Próximas a expirar" domain="[('to_expire','=',True)]"/>
+					<filter name="expired" string="Vencidas" domain="[('state','=','expired')]"/>
+					<filter name="cancel" string="Canceladas" domain="[('state','=','cancel')]"/>
+					<separator/>
+					<filter name="recurring_customer" string="Recurrentes" domain="[('recurring_customer','=',1)]"/>
+                    <filter name="has_server" string="Tienen servidor" domain="[('has_server','=',1)]"/>
+					<field name="name"/>
+					<separator/>
+                    <group expand="0" string="Agrupar por">
+						<filter name="group_by_state" string="Estado" context="{'group_by':'state'}"/>
+						<filter name="group_by_partner" string="Cliente" context="{'group_by':'partner_id'}"/>
+						<filter name="group_by_personality" string="Personalidad" context="{'group_by':'personality'}"/>
+						<filter name="group_by_server_type" string="Tipo servidor" context="{'group_by':'server_type'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="res_renewal_form_view" model="ir.ui.view">
+            <field name="name">res.renewal.form</field>
+            <field name="model">res.renewal</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Renovaciones">
+                <header>
+					<button string="Cambiar a Borrador" type="object" name="action_draft" attrs="{'invisible': [('state','in',('draft','process'))]}"
+                            groups="andros-aesa.renewal_group_admin" />
+					<button string="Procesar" type="object" name="action_process" attrs="{'invisible': [('state','in',('process','cancel'))]}"
+                            groups="andros-aesa.renewal_group_admin" />
+					<button string="Renovar" type="object" name="action_renew" attrs="{'invisible': ['|',('state','in',('draft','cancel')),('to_expire','=',False)]}"
+                            groups="andros-aesa.renewal_group_admin" class="oe_highlight"/>
+					<button string="Cancelar" type="object" name="action_cancel" attrs="{'invisible': [('state','in',('expired','cancel'))]}"
+                            groups="andros-aesa.renewal_group_admin" />
+					<field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                         <h2>Folio: <field name="name" class="oe_inline"/></h2>
+                    </div>
+                    <group >
+                        <group name="cli_data_izq">
+                            <field name="is_company" invisible="1"/>
+                            <field name="type" groups="base.group_no_one" invisible="1"/>
+                            <field name="partner_id"/>
+                            <label for="" name="address_name">
+                                <b attrs="{'invisible': [('type', '!=', 'contact')]}">Dirección de Compañía</b>
+                                <b attrs="{'invisible': [('type', '!=', 'invoice')]}">Dirección de Facturación</b>
+                                <b attrs="{'invisible': [('type', '!=', 'delivery')]}">Dirección de Entrega</b>
+                                <b attrs="{'invisible': [('type', '!=', 'other')]}">Otra Dirección</b>
+                                <b attrs="{'invisible': [('type', '!=', 'private')]}">Dirección Privada</b>
+                                <b attrs="{'invisible': [('type', '!=', False)]}">Dirección</b>
+                            </label>
+                            <div class="o_address_format">
+                                <field name="street" placeholder="Calle..." class="o_address_street" />
+                                <field name="street2" placeholder="Calle 2..." class="o_address_street" />
+                                <field name="city" placeholder="Ciudad" class="o_address_city" />
+                                <field name="state_id" class="o_address_state" placeholder="Estado"
+                                       options="{&quot;no_open&quot;: True}"
+                                       context="{'country_id': country_id, 'zip': zip}"/>
+                                <field name="zip" placeholder="ZIP" class="o_address_zip" />
+                                <field name="country_id" placeholder="Country" class="o_address_country" options="{&quot;no_open&quot;: True, &quot;no_create&quot;: True}" />
+                            </div>
+                            <field name="vat" placeholder="e.g. BE0477472701" />
+                        </group>
+                        <group name="cli_data_der">
+                            <field name="function" placeholder="e.g. Sales Director" attrs="{'invisible': [('is_company','=', True)]}"/>
+                            <field name="phone" widget="phone"/>
+                            <field name="mobile" widget="phone"/>
+                            <field name="email" widget="email" context="{'gravatar_image': True}"/>
+                            <field name="website" widget="url" placeholder="ej. https://www.odoo.com"/>
+                            <field name="title" options="{&quot;no_open&quot;: True}" placeholder="e.g. Mister" attrs="{'invisible': [('is_company', '=', True)]}"/>
+                            <field name="category_id" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True}" placeholder="Etiquetas..."/>
+                        </group>
+                        <group name="selector" string="Seleccionar sistema">
+                            <field name="aspel_system_id" domain="[('partner_id','=',partner_id)]"/>
+                            <field name="to_expire"/>
+                        </group>
+                        <group name="data" string="Datos Sistema">
+                            <field name="user_numbers"/>
+                            <field name="serial_number_aesa"/>
+                            <field name="version"/>
+                            <field name="type_id"/>
+                            <field name="new_date"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="crm" string="CRM">
+                            <group name="container_row">
+                                <group name="g1">
+                                    <field name="source_id" string="Origen del prospecto"/>
+                                    <field name="personality"/>
+                                    <field name="purchase_licenses"/>
+                                    <field name="system_implementation"/>
+                                    <field name="system_customization"/>
+                                    <field name="training"/>
+                                    <field name="hardware_software"/>
+                                    <field name="have_systems_area"/>
+                                    <field name="computers_in_network"/>
+                                </group>
+                                <group name="g2">
+                                    <field name="has_server"/>
+                                    <field name="server_type" attrs="{'invisible': [('has_server', '!=', '1')]}"/>
+                                    <field name="own_server" attrs="{'invisible': [('server_type', '!=', 'cloud')]}"/>
+                                    <field name="cut_date" attrs="{'invisible': [('server_type', '!=', 'cloud')]}"/>
+                                    <field name="ip_server" attrs="{'invisible': [('server_type', '!=', 'cloud')]}"/>
+                                    <field name="url_server" attrs="{'invisible': [('server_type', '!=', 'cloud')]}" widget="url"/>
+                                    <field name="recurring_customer"/>
+                                    <field name="number_rings" attrs="{'invisible': [('recurring_customer', '!=', '1')]}"/>
+                                    <field name="last_sale" attrs="{'invisible': [('recurring_customer', '!=', '1')]}"/>
+                                </group>
+                            </group>
+                            <group name="g3">
+                                <field name="description_aesa"/>
+                                <field name="description_crm"/>
+                            </group>
+                        </page>
+                        <page name="history" string="Historial de comentarios">
+                            <field name="history_comments"/>
+                        </page>
+                    </notebook>
+
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+                </form>
+            </field>
+        </record>
+
+    </data>
+</odoo>

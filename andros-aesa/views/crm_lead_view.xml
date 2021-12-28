@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="crm_lead_aesa_view" model="ir.ui.view">
+        <field name="name">crm.lead.aesa.view</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_lead_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//div[@class='oe_button_box']" position="inside">
+                <button name="action_view_sale_quotation" type="object"
+                    class="oe_stat_button" icon="fa-dollar">
+                    <div class="o_stat_info">
+                        <field name="planned_revenue_aesa" class="o_stat_value"/>
+                        <span class="o_stat_text">Ingreso estimado</span>
+                    </div>
+                </button>
+            </xpath>
+
+            <notebook position="inside">
+                <page string="Información específica">
+                    <group>
+                        <field name="purchase_licenses"/>
+                        <field name="system_implementation"/>
+                        <field name="system_customization"/>
+                        <field name="training"/>
+                        <field name="hardware_software"/>
+                        <field name="have_systems_area"/>
+                        <field name="computers_in_network"/>
+                    </group>
+                </page>
+                <page string="Información adicional">
+                    <group>
+                        <field name="description_aesa"/>
+                    </group>
+                </page>
+                <page string="Suscripciones">
+                    <group>
+                        <field name="has_server"/>
+                        <field name="server_type" attrs="{'invisible': [('has_server', '!=', '1')]}"/>
+                        <field name="own_server" attrs="{'invisible': [('server_type', '!=', 'cloud')]}"/>
+                        <field name="cut_date" attrs="{'invisible': [('server_type', '!=', 'cloud')]}"/>
+                        <field name="ip_server" attrs="{'invisible': [('server_type', '!=', 'cloud')]}"/>
+                        <field name="url_server" attrs="{'invisible': [('server_type', '!=', 'cloud')]}" widget="url"/>
+                        <field name="recurring_customer"/>
+                        <field name="number_rings" attrs="{'invisible': [('recurring_customer', '!=', '1')]}"/>
+                        <field name="last_sale" attrs="{'invisible': [('recurring_customer', '!=', '1')]}"/>
+                        <field name="aspel_systems"/>
+                    </group>
+                </page>
+                <page string="Historial de comentarios">
+                    <group>
+                        <field name="aesa_comments"/>
+                    </group>
+                </page>
+            </notebook>
+            <xpath expr="//field[@name='name']" position="before">
+                <div>
+                    <field name="lead_sequence" attrs="{'invisible': [('type', '=', 'opportunity')]}"/>
+                </div>
+                <div>
+                    <field name="opportunity_sequence" attrs="{'invisible': [('type', '=', 'lead')]}"/>
+                </div>
+            </xpath>
+
+            <xpath expr="//field[@name='team_id']" position="after">
+                <separator string="Probabilidad" colspan="2"/>
+                <field name="necessity"/>
+                <field name="impact"/>
+                <field name="time"/>
+                <field name="authority"/>
+            </xpath>
+            <xpath expr="//field[@name='team_id']" position="after">
+                <field name="personality"/>
+                <field name="source_id"/>
+            </xpath>
+            <xpath expr="//field[@name='source_id']" position="attributes">
+                <attribute name="string">Origen del prospecto</attribute>
+            </xpath>
+            <xpath expr="//page[@name='lead']//field[@name='source_id']" position="attributes">
+                <attribute name="string">Origen del prospecto</attribute>
+            </xpath>
+            <xpath expr="//field[@name='street']" position="attributes">
+                <attribute name="placeholder">Calle y #</attribute>
+            </xpath>
+            <xpath expr="//field[@name='street2']" position="attributes">
+                <attribute name="placeholder">Colonia</attribute>
+            </xpath>
+            <xpath expr="//field[@name='city']" position="attributes">
+                <attribute name="placeholder">Delegación</attribute>
+            </xpath>
+            <xpath expr="//field[@name='country_id']" position="attributes">
+                <attribute name="invisible">True</attribute>
+            </xpath>
+            <xpath expr="//field[@name='partner_id']" position="attributes">
+                <attribute name="options">{'no_create_edit': True, 'no_create':True, 'no_open':True, 'no_quick_create': True}</attribute>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>
